@@ -22,8 +22,12 @@ const double EPS = 1e-4;
 int t_cur;
 int f_cur;
 
-int lowerbound(int cols) {
-    return 2*cols;
+int lowerbound(int collisions) {
+    return 2*collisions;
+}
+
+int schoute(int collisions) {
+    return ((int)round(2.39*collisions));
 }
 
 simulation dfsa(int opt) {
@@ -64,10 +68,10 @@ simulation dfsa(int opt) {
     result.totEmpty = totEmpty;
     result.timeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    // printf("%d\n", totSlots);
-    // printf("%d\n", totEmpty);
-    // printf("%d\n", totCollisions);
-    // printf("%lf\n", result.timeUsed);
+    printf("%d\n", totSlots);
+    printf("%d\n", totEmpty);
+    printf("%d\n", totCollisions);
+    printf("%lf\n", result.timeUsed);
 
     return result;
 }
@@ -79,7 +83,7 @@ int main() {
     t_cur = t_init;
     f_cur = f_init;
 
-    // dfsa(1);
+    dfsa(1);
 
     return 0;
 }

@@ -10,14 +10,14 @@ struct simulation {
 #define LB 1 //lower_bound opt
 #define EL 2 //eom-lee opt
 
-const int t_init = 100; //tags iniciais
+const int t_init = 500; //tags iniciais
 const int t_inc = 100; //incremento do numero de tags
 const int t_max = 1000; //maximo de tags
 
 const int f_init = 64; //frame size inicial
 const int rep = 2000; //simulações
 
-const double EPS = 1e-4;
+const double EPS = 1e-3;
 
 int t_cur;
 int f_cur;
@@ -26,8 +26,24 @@ int lowerbound(int collisions) {
     return 2*collisions;
 }
 
-int schoute(int collisions) {
-    return ((int)round(2.39*collisions));
+// int schoute(int collisions) {
+//     return ((int)round(2.39*collisions));
+// }
+
+int eomlee(int collisions, int success, int fsize) {
+    long double gama0, gama1, tmp_exp, beta;
+
+    beta = (long double) DBL_MAX; //infinito
+    gama1 = 2.0;
+
+    do {
+        gama0 = gama1;
+        beta = fsize / (gama0*collisions + success);
+        tmp_exp = exp(-1.0/beta);
+        gama1 = (1.0-tmp_exp) / (beta*(1.0 - ((1.0 + (1.0/beta)) * tmp_exp)));
+    } while(abs(gama0-gama1) >= EPS);
+
+    return (int)(gama1*collisions);
 }
 
 simulation dfsa(int opt) {
@@ -49,32 +65,29 @@ simulation dfsa(int opt) {
         }
 
         for(int i = 0; i < f_cur; i++) {
-            empty += (frame[i]==0);
-            success += (frame[i]==1);
             collisions += (frame[i] >= 2);
+            success += (frame[i]==1);
+            empty += (frame[i]==0);
         }
 
         t_cur -= success;
-        f_cur = lowerbound(collisions);
+        if (opt == LB) f_cur = lowerbound(collisions);
+        else if (opt == EL) f_cur = eomlee(collisions, success, f_cur);
 
-        totEmpty += empty;
         totCollisions += collisions;
         totSlots += f_cur;
+        totEmpty += empty;
     }
     end = clock();
 
-    result.totSlots = totSlots;
     result.totCollisions = totCollisions;
+    result.totSlots = totSlots;
     result.totEmpty = totEmpty;
     result.timeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("%d\n", totSlots);
-    printf("%d\n", totEmpty);
-    printf("%d\n", totCollisions);
-    printf("%lf\n", result.timeUsed);
-
     return result;
 }
+
 
 int main() {
 
@@ -83,7 +96,22 @@ int main() {
     t_cur = t_init;
     f_cur = f_init;
 
-    dfsa(1);
+    double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
+    for(int i = 0; i < rep; i++) {
+        t_cur = t_init;
+        f_cur = f_init;
+        simulation tmp = dfsa(LB);
+        //simulation tmp = dfsa(EL);
+        avgCollisions += (double)tmp.totCollisions;
+        avgSlots += (double)tmp.totSlots;
+        avgEmpty += (double)tmp.totEmpty;
+        avgTime += (double)tmp.timeUsed;
+    }
+
+    avgCollisions/=(double)rep, avgSlots/=(double)rep;
+    avgEmpty/=(double)rep, avgTime/=(double)rep;
+
+    printf("numero de etiquetas: %d\nSlots: %lf \nTempo: %lf \nVazios: %lf \nColisão: %lf\n\n", t_init, avgSlots, avgTime, avgEmpty, avgCollisions);
 
     return 0;
 }

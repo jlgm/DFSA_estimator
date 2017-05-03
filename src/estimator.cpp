@@ -154,7 +154,7 @@ int main() {
     run();
 
     int cmd;
-    cmd = 4; //slots
+    cmd = 1; //slots
     // cmd = 2; //tempo
     // cmd = 3; //vazios
     // cmd = 4; //colisões

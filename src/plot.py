@@ -25,19 +25,19 @@ cmd = lines[13].split()[0]
 if (cmd == "1"):
     plt.plot(axis, lb_slots, 'g^--', label="lower_bound")
     plt.plot(axis, el_slots, 'bs--', label="eom-lee")
-    plt.plot(axis, sc_slots, 'ro--', label="schout")
+    plt.plot(axis, sc_slots, 'ro--', label="schoute")
 elif (cmd == "2"):
     plt.plot(axis, lb_time, 'g^--', label="lower_bound")
     plt.plot(axis, el_time, 'bs--', label="eom-lee")
-    plt.plot(axis, sc_time, 'ro--')
+    plt.plot(axis, sc_time, 'ro--', label="schoute")
 elif (cmd == "3"):
     plt.plot(axis, lb_empty, 'g^--', label="lower_bound")
     plt.plot(axis, el_empty, 'bs--', label="eom-lee")
-    plt.plot(axis, sc_empty, 'ro--', label="schout")
+    plt.plot(axis, sc_empty, 'ro--', label="schoute")
 elif (cmd == "4"):
     plt.plot(axis, lb_cols, 'g^--', label="lower_bound")
     plt.plot(axis, el_cols, 'bs--', label="eom-lee")
-    plt.plot(axis, sc_cols, 'ro--', label="schout")
+    plt.plot(axis, sc_cols, 'ro--', label="schoute")
 
 plt.legend(loc=2)
 plt.grid(True)

@@ -18,7 +18,7 @@ const int t_max = 1000; //maximo de tags
 const int f_init = 64; //frame size inicial
 const int rep = 2000; //simulações
 
-const double EPS = 1e-6;
+const double EPS = 1e-3;
 
 int t_cur;
 int f_cur;
@@ -32,10 +32,9 @@ int schoute(int collisions) {
     return ((int)round(2.39*collisions));
 }
 
-int eomlee(int collisions, int success, int fsize) {
+int eom_lee(int collisions, int success, int fsize) {
     double gama0, gama1, tmp_exp, beta;
 
-    beta = DBL_MAX; //infinito
     gama1 = 2.0;
 
     do {
@@ -73,9 +72,9 @@ simulation dfsa(int opt) {
         }
 
         t_cur -= success;
-        if (opt == LB) f_cur = lowerbound(collisions);
-        else if (opt = SC) f_cur = schoute(collisions);
-        else if (opt == EL) f_cur = eomlee(collisions, success, f_cur);
+        if (opt == 1) f_cur = lowerbound(collisions);
+        else if (opt == 2) f_cur = eom_lee(collisions, success, f_cur);
+        else if (opt = 3) f_cur = schoute(collisions);
 
         totCollisions += collisions;
         totSlots += f_cur;

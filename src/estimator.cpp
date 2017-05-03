@@ -2,7 +2,7 @@
 using namespace std;
 
 struct simulation {
-    int totCollisions, totEmpty, totSlots;
+    double totCollisions, totEmpty, totSlots;
     double timeUsed;
 };
 
@@ -82,9 +82,9 @@ simulation dfsa(int opt) {
     }
     end = clock();
 
-    result.totCollisions = totCollisions;
-    result.totSlots = totSlots;
-    result.totEmpty = totEmpty;
+    result.totCollisions = (double)totCollisions;
+    result.totSlots = (double)totSlots;
+    result.totEmpty = (double)totEmpty;
     result.timeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     return result;
@@ -92,33 +92,73 @@ simulation dfsa(int opt) {
 
 void run() {
 
+    vector<simulation> s[3];
+    vector<int> axis;
+
     for(int tags = t_init; tags <= t_max; tags+=t_inc) {
-
-        t_cur = tags;
-        f_cur = f_init;
-        double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
-
-        for(int i = 0; i < rep; i++) {
+        for(int est = 1; est <= 3; est++) {
             t_cur = tags;
             f_cur = f_init;
-            simulation tmp = dfsa(EL);
-            avgCollisions += (double)tmp.totCollisions;
-            avgSlots += (double)tmp.totSlots;
-            avgEmpty += (double)tmp.totEmpty;
-            avgTime += (double)tmp.timeUsed;
+            double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
+
+            for(int i = 0; i < rep; i++) {
+                t_cur = tags;
+                f_cur = f_init;
+                simulation tmp = dfsa(est);
+                avgCollisions += tmp.totCollisions;
+                avgSlots += tmp.totSlots;
+                avgEmpty += tmp.totEmpty;
+                avgTime += tmp.timeUsed;
+            }
+
+            avgCollisions/=(double)rep, avgSlots/=(double)rep;
+            avgEmpty/=(double)rep, avgTime/=(double)rep;
+
+            //printf("numero de etiquetas: %d\nSlots: %lf \nTempo: %lf \nVazios: %lf \nColisão: %lf\n\n", tags, avgSlots, avgTime, avgEmpty, avgCollisions);
+            simulation tmp;
+            tmp.totCollisions = avgCollisions;
+            tmp.totSlots = avgSlots;
+            tmp.totEmpty = avgEmpty;
+            tmp.timeUsed = avgTime;
+
+            if (est == 1) s[0].push_back(tmp);
+            else if (est == 2) s[1].push_back(tmp);
+            else if (est == 3) s[2].push_back(tmp);
         }
+        axis.push_back(tags);
+    }
 
-        avgCollisions/=(double)rep, avgSlots/=(double)rep;
-        avgEmpty/=(double)rep, avgTime/=(double)rep;
-
-        printf("numero de etiquetas: %d\nSlots: %lf \nTempo: %lf \nVazios: %lf \nColisão: %lf\n\n", tags, avgSlots, avgTime, avgEmpty, avgCollisions);
+    for(int i = 0; i < axis.size(); i++)
+        printf("%d ", axis[i]);
+    puts("");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < s[i].size(); j++)
+            printf("%.2lf ", s[i][j].totSlots);
+        puts("");
+        for(int j = 0; j < s[i].size(); j++)
+            printf("%.2lf ", s[i][j].timeUsed);
+        puts("");
+        for(int j = 0; j < s[i].size(); j++)
+            printf("%.2lf ", s[i][j].totEmpty);
+        puts("");
+        for(int j = 0; j < s[i].size(); j++)
+            printf("%.2lf ", s[i][j].totCollisions);
+        puts("");
     }
 
 }
 
 int main() {
     srand(time(NULL)); //seed for rand
+
     run();
+
+    int cmd;
+    cmd = 4; //slots
+    // cmd = 2; //tempo
+    // cmd = 3; //vazios
+    // cmd = 4; //colisões
+    printf("%d\n", cmd);
 
     return 0;
 }

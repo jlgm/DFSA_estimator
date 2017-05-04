@@ -7,16 +7,12 @@ struct simulation {
 };
 
 //params:
-#define LB 1 //lower_bound opt
-#define EL 2 //eom-lee opt
-#define SC 3 //schoute
+const int t_init = 100; //tags iniciais
+const int t_inc = 100; //incremento do numero de tags
+const int t_max = 1000; //maximo de tags
 
-const int t_init = 1; //tags iniciais
-const int t_inc = 200; //incremento do numero de tags
-const int t_max = 1001; //maximo de tags
-
-const int f_init = 128; //frame size inicial
-const int rep = 1000; //simulações
+const int f_init = 64; //frame size inicial
+const int rep = 2000; //simulações
 
 const double EPS = 1e-3;
 
@@ -92,6 +88,7 @@ simulation dfsa(int opt) {
 
 simulation Q() {
     double Q = 4.0, Qfp = Q, prevQ = Q, cc = 0.21183, ci = 0.15;
+    //cc = ci = 0.2; //se nao for o fast!
 
     int totCollisions = 0, totEmpty = 0, totSlots = 0;
     int cur = 0;

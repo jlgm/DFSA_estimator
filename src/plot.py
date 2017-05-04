@@ -20,12 +20,18 @@ sc_time = lines[10].split()
 sc_empty = lines[11].split()
 sc_cols = lines[12].split()
 
-cmd = lines[13].split()[0]
+q_slots = lines[13].split()
+q_time = lines[14].split()
+q_empty = lines[15].split()
+q_cols = lines[16].split()
+
+cmd = lines[17].split()[0]
 
 if (cmd == "1"):
     plt.plot(axis, lb_slots, 'g^--', label="lower_bound")
     plt.plot(axis, el_slots, 'bs--', label="eom-lee")
     plt.plot(axis, sc_slots, 'ro--', label="schoute")
+    # plt.plot(axis, q_slots, 'k-', label="Q")
 elif (cmd == "2"):
     plt.plot(axis, lb_time, 'g^--', label="lower_bound")
     plt.plot(axis, el_time, 'bs--', label="eom-lee")
@@ -38,6 +44,7 @@ elif (cmd == "4"):
     plt.plot(axis, lb_cols, 'g^--', label="lower_bound")
     plt.plot(axis, el_cols, 'bs--', label="eom-lee")
     plt.plot(axis, sc_cols, 'ro--', label="schoute")
+    # plt.plot(axis, q_cols, 'k-', label="Q")
 
 plt.legend(loc=2)
 plt.grid(True)

@@ -11,12 +11,12 @@ struct simulation {
 #define EL 2 //eom-lee opt
 #define SC 3 //schoute
 
-const int t_init = 100; //tags iniciais
-const int t_inc = 100; //incremento do numero de tags
-const int t_max = 1000; //maximo de tags
+const int t_init = 1; //tags iniciais
+const int t_inc = 200; //incremento do numero de tags
+const int t_max = 1001; //maximo de tags
 
-const int f_init = 64; //frame size inicial
-const int rep = 2000; //simulações
+const int f_init = 128; //frame size inicial
+const int rep = 1000; //simulações
 
 const double EPS = 1e-3;
 
@@ -90,13 +90,57 @@ simulation dfsa(int opt) {
     return result;
 }
 
+simulation Q() {
+    double Q = 4.0, Qfp = Q, prevQ = Q, cc = 0.21183, ci = 0.15;
+
+    int totCollisions = 0, totEmpty = 0, totSlots = 0;
+    int cur = 0;
+
+    clock_t start, end;
+
+    start = clock();
+    while(t_cur > 0) {
+        f_cur = (int)pow(2.0,Q);
+
+        int success = 0, collisions = 0, empty = 0;
+
+        for(int i = 0; i < t_cur; i++) {
+            int idx = (rand() % f_cur);
+            success += (idx == 0);
+        }
+
+        if (success == 1) {
+            t_cur--;
+        }
+        else if (success > 1) {
+            Qfp = min(15.0, Qfp+cc);
+            totCollisions++;
+        }
+        else if (success == 0) {
+            Qfp = max(0.0, Qfp-ci);
+            totEmpty++;
+        }
+        Q = round(Qfp);
+        totSlots++;
+    }
+    end = clock();
+
+    simulation result;
+    result.totSlots = totSlots;
+    result.totCollisions = totCollisions;
+    result.totEmpty = totEmpty;
+    result.timeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+
+    return result;
+}
+
 void run() {
 
-    vector<simulation> s[3];
+    vector<simulation> s[4];
     vector<int> axis;
 
     for(int tags = t_init; tags <= t_max; tags+=t_inc) {
-        for(int est = 1; est <= 3; est++) {
+        for(int est = 1; est <= 4; est++) {
             t_cur = tags;
             f_cur = f_init;
             double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
@@ -104,7 +148,7 @@ void run() {
             for(int i = 0; i < rep; i++) {
                 t_cur = tags;
                 f_cur = f_init;
-                simulation tmp = dfsa(est);
+                simulation tmp = (est < 4) ? dfsa(est) : Q();
                 avgCollisions += tmp.totCollisions;
                 avgSlots += tmp.totSlots;
                 avgEmpty += tmp.totEmpty;
@@ -124,19 +168,21 @@ void run() {
             if (est == 1) s[0].push_back(tmp);
             else if (est == 2) s[1].push_back(tmp);
             else if (est == 3) s[2].push_back(tmp);
+            else if (est == 4) s[3].push_back(tmp);
         }
+
         axis.push_back(tags);
     }
 
     for(int i = 0; i < axis.size(); i++)
         printf("%d ", axis[i]);
     puts("");
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 4; i++) {
         for(int j = 0; j < s[i].size(); j++)
             printf("%.2lf ", s[i][j].totSlots);
         puts("");
         for(int j = 0; j < s[i].size(); j++)
-            printf("%.2lf ", s[i][j].timeUsed);
+            printf("%lf ", s[i][j].timeUsed);
         puts("");
         for(int j = 0; j < s[i].size(); j++)
             printf("%.2lf ", s[i][j].totEmpty);
@@ -152,6 +198,12 @@ int main() {
     srand(time(NULL)); //seed for rand
 
     run();
+
+    // t_cur = t_init;
+    // simulation test = Q();
+    //
+    // printf("%lf\n", test.totSlots);
+    // printf("%lf\n", test.totCollisions);
 
     int cmd;
     cmd = 1; //slots

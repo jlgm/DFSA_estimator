@@ -104,6 +104,7 @@ simulation Q() {
         for(int i = 0; i < t_cur; i++) {
             int idx = (rand() % f_cur);
             success += (idx == 0);
+            if (success == 2) break;
         }
 
         if (success == 1) {
@@ -136,8 +137,10 @@ void run() {
     vector<simulation> s[4];
     vector<int> axis;
 
+    int amt = 4; //colocar pra 3 se nao for usar Q
+
     for(int tags = t_init; tags <= t_max; tags+=t_inc) {
-        for(int est = 1; est <= 4; est++) {
+        for(int est = 1; est <= amt; est++) {
             t_cur = tags;
             f_cur = f_init;
             double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
@@ -162,10 +165,7 @@ void run() {
             tmp.totEmpty = avgEmpty;
             tmp.timeUsed = avgTime;
 
-            if (est == 1) s[0].push_back(tmp);
-            else if (est == 2) s[1].push_back(tmp);
-            else if (est == 3) s[2].push_back(tmp);
-            else if (est == 4) s[3].push_back(tmp);
+            s[est-1].push_back(tmp);
         }
 
         axis.push_back(tags);
@@ -174,7 +174,7 @@ void run() {
     for(int i = 0; i < axis.size(); i++)
         printf("%d ", axis[i]);
     puts("");
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < amt; i++) {
         for(int j = 0; j < s[i].size(); j++)
             printf("%.2lf ", s[i][j].totSlots);
         puts("");
@@ -203,8 +203,8 @@ int main() {
     // printf("%lf\n", test.totCollisions);
 
     int cmd;
-    cmd = 1; //slots
-    // cmd = 2; //tempo
+    // cmd = 1; //slots
+    cmd = 2; //tempo
     // cmd = 3; //vazios
     // cmd = 4; //colisões
     printf("%d\n", cmd);

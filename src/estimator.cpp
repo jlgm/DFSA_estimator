@@ -12,7 +12,7 @@ const int t_inc = 100; //incremento do numero de tags
 const int t_max = 1000; //maximo de tags
 
 const int f_init = 64; //frame size inicial
-const int rep = 2000; //simulações
+const int rep = 500; //simulações
 
 const double EPS = 1e-3;
 
@@ -43,11 +43,6 @@ int eom_lee(int collisions, int success, int fsize) {
     return ((int)round(gama1*collisions));
 }
 
-long double fact(long double n) {
-    if (n == 1) return 1;
-    return n*fact(n-1);
-}
-
 long double simple_factorial(long double a, long double b, long double c, long double d) {
     long double result = 1.0;
     while (a > 1) {
@@ -71,15 +66,6 @@ long double simple_factorial(long double a, long double b, long double c, long d
     return result;
 }
 
-long double comb(long double n, long double r, long double p) {
-    //n! / ( n - r )!  =  n * ( n - 1) * .. * (n - r + 1 )
-    long double ret = 1;
-    for (long double i = 0; i < r; i++) {
-        ret = (ret*p*(n-i))/(i+1);
-    }
-    return ret;
-}
-
 int chen(int empty, int success, int collisions) {
 
     long double L = success + empty + collisions;
@@ -95,11 +81,45 @@ int chen(int empty, int success, int collisions) {
         long double ps = (n/L)*pow((1-(1/L)), (n-1));
         long double pc = 1-pe-ps;
         next = (simple_factorial(L,empty,success,collisions))*pow(pe,empty)*pow(ps,success)*pow(pc,collisions);
-        // next = comb(L,empty,pe)*(comb(success+collisions,success,ps)*pow(pc,collisions));
 
         // printf("%Lf \n%Lf \n%Lf \n%Lf \n%Lf \n%Lf\n", L, previous, next, pe, ps, pc);
         // int lixo; scanf("%d", &lixo);
 
+        n = n+1;
+    }
+    return (int)round(n-2);
+}
+
+
+int vahedi(int empty, int success, int collisions) {
+
+    long double L = success + empty + collisions;
+    long double n = success + 2.0*collisions;
+
+    long double next = 0;
+    long double previous = -1;
+
+
+    while (previous < next) {
+        long double p1 = pow(1 - (empty/L), n);
+        long double p2 = (pow(L-empty-success, n-success) / pow(L-empty, n))*simple_factorial(success,1,1,1);
+                    p2 *= simple_factorial(n, success, n-success, 1);
+        long double p3 = 0;
+
+        previous = next;
+
+        for (int k = 0; k <= collisions; k++) {
+            for (int v = 0; v <= collisions-k; v++) {
+                long double tmpExp = pow(-1, k+v);
+                tmpExp *= simple_factorial(collisions, k, collisions-k, 1);
+                tmpExp *= simple_factorial(collisions-k, v, collisions-k-v, 1);
+                tmpExp *= simple_factorial(n-success, n-success-k, 1, 1);
+                tmpExp *= (pow(collisions-k-v, n-success-k)/pow(collisions, n-success));
+                p3 += tmpExp;
+            }
+        }
+
+        next = simple_factorial(L,empty,success,collisions)*p1*p2*p3;
         n = n+1;
     }
     return (int)round(n-2);
@@ -134,6 +154,7 @@ simulation dfsa(int opt) {
         else if (opt == 2) f_cur = eom_lee(collisions, success, f_cur);
         else if (opt == 3) f_cur = schoute(collisions);
         else if (opt == 4) f_cur = chen(empty, success, collisions);
+        else if (opt == 5) f_cur = vahedi(empty, success, collisions);
 
         totCollisions += collisions;
         totSlots += f_cur;
@@ -197,10 +218,10 @@ simulation Q() {
 
 void run() {
 
-    vector<simulation> s[4];
+    vector<simulation> s[10];
     vector<int> axis;
 
-    int amt = 4; //colocar pra 3 se nao for usar Q
+    int amt = 6; //colocar pra 5 se nao for usar Q
 
     for(int tags = t_init; tags <= t_max; tags+=t_inc) {
         for(int est = 1; est <= amt; est++) {
@@ -211,8 +232,8 @@ void run() {
             for(int i = 0; i < rep; i++) {
                 t_cur = tags;
                 f_cur = f_init;
-                // simulation tmp = (est < 4) ? dfsa(est) : Q();
-                simulation tmp = dfsa(est);
+                simulation tmp = (est < amt) ? dfsa(est) : Q();
+                // simulation tmp = dfsa(est);
                 avgCollisions += tmp.totCollisions;
                 avgSlots += tmp.totSlots;
                 avgEmpty += tmp.totEmpty;

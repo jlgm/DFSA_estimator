@@ -43,6 +43,68 @@ int eom_lee(int collisions, int success, int fsize) {
     return ((int)round(gama1*collisions));
 }
 
+long double fact(long double n) {
+    if (n == 1) return 1;
+    return n*fact(n-1);
+}
+
+long double simple_factorial(long double a, long double b, long double c, long double d) {
+    long double result = 1.0;
+    while (a > 1) {
+        result = result * a;
+        a = a-1;
+        if (b > 1){
+            result = result/b;
+            b = b - 1;
+        }
+
+        if (c > 1){
+            result = result/c;
+            c = c - 1;
+        }
+
+        if (d > 1){
+            result = result/d;
+            d = d - 1;
+        }
+    }
+    return result;
+}
+
+long double comb(long double n, long double r, long double p) {
+    //n! / ( n - r )!  =  n * ( n - 1) * .. * (n - r + 1 )
+    long double ret = 1;
+    for (long double i = 0; i < r; i++) {
+        ret = (ret*p*(n-i))/(i+1);
+    }
+    return ret;
+}
+
+int chen(int empty, int success, int collisions) {
+
+    long double L = success + empty + collisions;
+    long double n = success + 2.0*collisions;
+
+    long double next = 0;
+    long double previous = -1;
+
+
+    while (previous < next) {
+        previous = next;
+        long double pe = pow((1.0 - (1.0/L)), n);
+        long double ps = (n/L)*pow((1-(1/L)), (n-1));
+        long double pc = 1-pe-ps;
+        next = (simple_factorial(L,empty,success,collisions))*pow(pe,empty)*pow(ps,success)*pow(pc,collisions);
+        // next = comb(L,empty,pe)*(comb(success+collisions,success,ps)*pow(pc,collisions));
+
+        // printf("%Lf \n%Lf \n%Lf \n%Lf \n%Lf \n%Lf\n", L, previous, next, pe, ps, pc);
+        // int lixo; scanf("%d", &lixo);
+
+        n = n+1;
+    }
+    return (int)round(n-2);
+}
+
 simulation dfsa(int opt) {
 
     int totCollisions = 0, totEmpty = 0, totSlots = f_cur;
@@ -70,7 +132,8 @@ simulation dfsa(int opt) {
         t_cur -= success;
         if (opt == 1) f_cur = lowerbound(collisions);
         else if (opt == 2) f_cur = eom_lee(collisions, success, f_cur);
-        else if (opt = 3) f_cur = schoute(collisions);
+        else if (opt == 3) f_cur = schoute(collisions);
+        else if (opt == 4) f_cur = chen(empty, success, collisions);
 
         totCollisions += collisions;
         totSlots += f_cur;
@@ -148,7 +211,8 @@ void run() {
             for(int i = 0; i < rep; i++) {
                 t_cur = tags;
                 f_cur = f_init;
-                simulation tmp = (est < 4) ? dfsa(est) : Q();
+                // simulation tmp = (est < 4) ? dfsa(est) : Q();
+                simulation tmp = dfsa(est);
                 avgCollisions += tmp.totCollisions;
                 avgSlots += tmp.totSlots;
                 avgEmpty += tmp.totEmpty;

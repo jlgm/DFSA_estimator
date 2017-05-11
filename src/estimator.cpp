@@ -12,10 +12,11 @@ const int t_inc = 100; //incremento do numero de tags
 const int t_max = 1000; //maximo de tags
 
 const int f_init = 64; //frame size inicial
-const int rep = 500; //simulações
 
 const double EPS = 1e-3;
+const double eps = 1e-9;
 
+int rep = 2000; //simulações
 int t_cur;
 int f_cur;
 
@@ -43,8 +44,8 @@ int eom_lee(int collisions, int success, int fsize) {
     return ((int)round(gama1*collisions));
 }
 
-long double simple_factorial(long double a, long double b, long double c, long double d) {
-    long double result = 1.0;
+double simple_factorial(double a, double b, double c, double d) {
+    double result = 1.0;
     while (a > 1) {
         result = result * a;
         a = a-1;
@@ -68,18 +69,18 @@ long double simple_factorial(long double a, long double b, long double c, long d
 
 int chen(int empty, int success, int collisions) {
 
-    long double L = success + empty + collisions;
-    long double n = success + 2.0*collisions;
+    double L = success + empty + collisions;
+    double n = success + 2.0*collisions;
 
-    long double next = 0;
-    long double previous = -1;
+    double next = 0;
+    double previous = -1;
 
 
     while (previous < next) {
+        double pe = pow((1.0 - (1.0/L)), n);
+        double ps = (n/L)*pow((1.0-(1.0/L)), (n-1));
+        double pc = 1.0-pe-ps;
         previous = next;
-        long double pe = pow((1.0 - (1.0/L)), n);
-        long double ps = (n/L)*pow((1-(1/L)), (n-1));
-        long double pc = 1-pe-ps;
         next = (simple_factorial(L,empty,success,collisions))*pow(pe,empty)*pow(ps,success)*pow(pc,collisions);
 
         // printf("%Lf \n%Lf \n%Lf \n%Lf \n%Lf \n%Lf\n", L, previous, next, pe, ps, pc);
@@ -90,27 +91,26 @@ int chen(int empty, int success, int collisions) {
     return (int)round(n-2);
 }
 
-
 int vahedi(int empty, int success, int collisions) {
 
-    long double L = success + empty + collisions;
-    long double n = success + 2.0*collisions;
+    double L = success + empty + collisions;
+    double n = success + 2.0*collisions;
 
-    long double next = 0;
-    long double previous = -1;
+    double next = 0;
+    double previous = -1;
 
 
     while (previous < next) {
-        long double p1 = pow(1 - (empty/L), n);
-        long double p2 = (pow(L-empty-success, n-success) / pow(L-empty, n))*simple_factorial(success,1,1,1);
+        double p1 = pow(1 - (empty/L), n);
+        double p2 = (pow(L-empty-success, n-success) / pow(L-empty, n))*simple_factorial(success,1,1,1);
                     p2 *= simple_factorial(n, success, n-success, 1);
-        long double p3 = 0;
+        double p3 = 0;
 
         previous = next;
 
         for (int k = 0; k <= collisions; k++) {
             for (int v = 0; v <= collisions-k; v++) {
-                long double tmpExp = pow(-1, k+v);
+                double tmpExp = pow(-1, k+v);
                 tmpExp *= simple_factorial(collisions, k, collisions-k, 1);
                 tmpExp *= simple_factorial(collisions-k, v, collisions-k-v, 1);
                 tmpExp *= simple_factorial(n-success, n-success-k, 1, 1);
@@ -229,7 +229,10 @@ void run() {
             f_cur = f_init;
             double avgCollisions = 0.0, avgSlots = 0.0, avgEmpty = 0.0, avgTime = 0.0;
 
-            for(int i = 0; i < rep; i++) {
+            int curRep = rep;
+            // if (est >= 5) curRep = 30;
+
+            for(int i = 0; i < curRep; i++) {
                 t_cur = tags;
                 f_cur = f_init;
                 simulation tmp = (est < amt) ? dfsa(est) : Q();
@@ -240,8 +243,8 @@ void run() {
                 avgTime += tmp.timeUsed;
             }
 
-            avgCollisions/=(double)rep, avgSlots/=(double)rep;
-            avgEmpty/=(double)rep, avgTime/=(double)rep;
+            avgCollisions/=(double)curRep, avgSlots/=(double)curRep;
+            avgEmpty/=(double)curRep, avgTime/=(double)curRep;
 
             //printf("numero de etiquetas: %d\nSlots: %lf \nTempo: %lf \nVazios: %lf \nColisão: %lf\n\n", tags, avgSlots, avgTime, avgEmpty, avgCollisions);
             simulation tmp;
@@ -288,8 +291,8 @@ int main() {
     // printf("%lf\n", test.totCollisions);
 
     int cmd;
-    // cmd = 1; //slots
-    cmd = 2; //tempo
+    cmd = 1; //slots
+    // cmd = 2; //tempo
     // cmd = 3; //vazios
     // cmd = 4; //colisões
     printf("%d\n", cmd);

@@ -47,7 +47,8 @@ if (cmd == "1"):
     plt.plot(axis, sc_slots, 'ro--', label="schoute")
     plt.plot(axis, c_slots, 'y^--', label="chen")
     plt.plot(axis, v_slots, 'cv--', label="vahedi")
-    plt.plot(axis, q_slots, 'md-', label="Fast Q")
+    plt.plot(axis, q_slots, 'md--', label="Fast Q")
+    plt.ylabel("total de slots");
     # plt.ylim(0,6000)
 elif (cmd == "2"):
     plt.plot(axis, lb_time, 'g*--', label="lower_bound")
@@ -57,6 +58,7 @@ elif (cmd == "2"):
     plt.plot(axis, v_time, 'cv--', label="vahedi")
     plt.plot(axis, q_time, 'md--', label="Fast Q")
     plt.yscale('log')
+    plt.ylabel("tempo medio (em segundos)");
 
 elif (cmd == "3"):
     plt.plot(axis, lb_empty, 'g*--', label="lower_bound")
@@ -64,7 +66,8 @@ elif (cmd == "3"):
     plt.plot(axis, sc_empty, 'ro--', label="schoute")
     plt.plot(axis, c_empty, 'y^--', label="chen")
     plt.plot(axis, v_empty, 'cv--', label="vahedi")
-    plt.plot(axis, q_empty, 'md-', label="Fast Q")
+    plt.plot(axis, q_empty, 'md--', label="Fast Q")
+    plt.ylabel("slots vazios");
     # plt.ylim(0, 1200)
 elif (cmd == "4"):
     plt.plot(axis, lb_cols, 'g*--', label="lower_bound")
@@ -72,9 +75,11 @@ elif (cmd == "4"):
     plt.plot(axis, sc_cols, 'ro--', label="schoute")
     plt.plot(axis, c_cols, 'y^--', label="chen")
     plt.plot(axis, v_cols, 'cv--', label="vahedi")
-    plt.plot(axis, q_cols, 'md-', label="Fast Q")
+    plt.plot(axis, q_cols, 'md--', label="Fast Q")
+    plt.ylabel("numero de colisoes");
     # plt.ylim(0,6000)
 
+plt.xlabel("numero de tags");
 plt.legend(loc=2)
 plt.grid(True)
 plt.show()
